@@ -19,7 +19,7 @@ locale.setlocale(locale.LC_TIME, "it_IT.UTF-8")
 
 BASE_DIR = Path(__file__).resolve().parent
 
-load_dotenv(dotenv_path=BASE_DIR / "env" / ".env")
+load_dotenv(dotenv_path=BASE_DIR / "env" / "env.env")
 
 APPLE_ID = os.environ["APPLE_ID"]
 APPLE_APP_PASSWORD = os.environ["APPLE_APP_PASSWORD"]
