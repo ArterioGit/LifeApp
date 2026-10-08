@@ -13,6 +13,7 @@ from urllib.parse import quote
 import caldav
 from icalendar import Calendar, Event
 from dotenv import load_dotenv
+import yaml
 
 locale.setlocale(locale.LC_TIME, "it_IT.UTF-8")
 
@@ -23,10 +24,26 @@ load_dotenv(dotenv_path=BASE_DIR / "env" / ".env")
 APPLE_ID = os.environ["APPLE_ID"]
 APPLE_APP_PASSWORD = os.environ["APPLE_APP_PASSWORD"]
 
-name2phone = {
-    "bigucci_alessandro": ("393287564035", "Topi"),
-    "bellone_emanuela": ("393292517443", "Manu"),
-}
+
+def load_name2phone_from_yaml(yaml_file_path):
+    """
+    Carica il dizionario name2phone dal file allievi.yaml.
+    """
+    with open(yaml_file_path, "r", encoding="utf-8") as file:
+        data = yaml.safe_load(file)
+
+    name2phone = {}
+    if data and "Allievi" in data:
+        for person in data["Allievi"]:
+            name = person.get("name", "").lower()
+            phone = person.get("phone", "")
+            if name and phone:
+                name2phone[name] = str(phone)
+
+    return name2phone
+
+
+name2phone = {}
 
 
 def extract_people_from_description(description_list):
@@ -85,6 +102,9 @@ def find_person_in_directory(nome, cognome, name2phone):
 
 
 def calendar_do():
+    global name2phone
+    name2phone = load_name2phone_from_yaml(BASE_DIR / "allievi.yaml")
+
     # Connessione a iCloud CalDAV
     client = caldav.DAVClient(
         url="https://caldav.icloud.com",
@@ -164,7 +184,7 @@ def calendar_do():
                                 )
 
                                 if person_info:
-                                    phone, nomignolo = person_info
+                                    phone = person_info
                                     message = f"""Memo: {name_cal} domani {start[1]} ore {start[2]}"""
                                     link = (
                                         f"https://wa.me/{phone}?text={quote(message)}"
