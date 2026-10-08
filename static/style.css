@@ -1,0 +1,315 @@
+body {
+    margin: 0;
+    background: #f8bfc7;
+    color: white;
+    font-family: Arial, Helvetica, sans-serif;
+    text-align: center;
+    min-height: 80vh;
+    position: relative;
+    overflow-x: hidden;
+}
+
+.background-image {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: min(70vw, 70vh);
+    height: min(70vw, 70vh);
+    max-width: 700px;
+    max-height: 700px;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+    opacity: 0.25;
+    filter: brightness(0) invert(1);
+    pointer-events: none;
+    z-index: 0;
+}
+
+body:not(.workout-mode) .background-image {
+    background-image: url("/static/logoLIFECropped.png");
+}
+
+body.workout-mode .background-image {
+    background-image: url("/static/farfalla-LIFE_violet.png");
+}
+
+h1 {
+    margin-top: 10px;
+    margin-bottom: 30px;
+    font-size: 60px;
+}
+
+button {
+    cursor: pointer;
+    border: none;
+    padding: 15px 30px;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.page-content-timer {
+    position: relative;
+    padding: 10px 20px 40px 20px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: top;
+    box-sizing: border-box;
+    z-index: 1;
+}
+
+.page-content-countdate {
+    position: relative;
+    padding: 10px 20px 40px 20px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    box-sizing: border-box;
+    z-index: 1;
+}
+
+.page-content-appointments {
+    position: relative;
+    padding: 10px 20px 40px 20px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    box-sizing: border-box;
+    z-index: 1;
+}
+
+.page-content-appointments > .d-flex {
+    width: 100%;
+}
+
+.form-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+.form-container label {
+    width: 100%;
+    max-width: 800px;
+    font-size: 30px;
+    color:#8B4757;
+}
+
+.form-container form {
+    width: 100%;
+    max-width: 800px;
+    font-size: 30px;
+    color:#8B4757;
+}
+
+.form-container input {
+    padding: 15px 10px;
+    height: 50px;
+    font-size: 30px;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+.form-container button {
+    font-size: 30px;
+    box-sizing: border-box;
+    background-color:#8B4757;
+    border: 2px solid #8B4757;
+}
+
+.form-container button:hover {
+    background-color: #b23c57 !important;
+    border: 2px solid #b23c57 !important;
+}
+
+.page-content-appointments .form-container button {
+    font-size: 20px;
+    width: fit-content;
+    align-self: center;
+}
+
+.appointments-table {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+}
+
+.appointments-table th,
+.appointments-table td {
+    border: 1px solid #8B4757;
+    padding: 8px;
+}
+
+.appointments-table th {
+    color:#b23c57;
+}
+
+.appointments-table a {
+    display: inline-block;
+    color: white;
+    font-size: 20px;
+    text-decoration: none;
+    padding: 10px 10px;
+    box-sizing: border-box;
+    background-color: #8B4757;
+    border: 2px solid #8B4757;
+}
+
+.appointments-table a:hover {
+    color: white;
+    background-color: #b23c57;
+    border-color: #b23c57;
+}
+
+.result-countdate {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+.result-countdate label {
+    font-size: 50px;
+    margin-bottom: 50px;
+}
+
+.page-content-countdate h1 {
+    margin-top: 40px;
+    margin-bottom: 30px;
+    font-size: 60px;
+    color:#8B4757;
+}
+
+.page-content-appointments h1 {
+    margin-top: 40px;
+    margin-bottom: 30px;
+    font-size: 60px;
+    color:#8B4757;
+}
+
+.settings {
+    margin-bottom: 40px;
+}
+
+.settings label {
+    margin: 0 15px;
+    font-size: 18px;
+}
+
+.settings input {
+    width: 70px;
+    padding: 5px;
+    font-size: 18px;
+    text-align: center;
+}
+
+#phase {
+    font-size: 50px;
+    margin-top: 40px;
+}
+
+#timer {
+    font-size: 140px;
+    font-weight: bold;
+    margin: 30px;
+}
+
+.buttons button {
+    padding: 15px 35px;
+    margin: 10px;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.buttons {
+    margin-top: 30px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+body.workout-mode .settings,
+body.workout-mode h1,
+body.workout-mode #fullscreenBtn,
+:fullscreen .settings,
+:fullscreen h1,
+:fullscreen #fullscreenBtn,
+:fullscreen .navbar {
+    display: none !important;
+}
+
+.workout-mode .page-content {
+    justify-content: center;
+    /* min-height: calc(100vh - 90px); */
+    min-height: 100vh;
+    /**/
+    padding: 0 20px 110px;
+    box-sizing: border-box;
+}
+
+.workout-mode #phase {
+    font-size: 5.5vw;
+    margin-top: 100px;
+    margin-bottom: 50px;
+}
+
+.workout-mode #timer {
+    font-size: 25vw;
+    line-height: 1;
+    margin: 0;
+}
+
+.workout-mode .buttons {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    justify-content: center;
+    margin: 0;
+    padding: 0;
+}
+
+.workout-mode .buttons button {
+    flex: 1;
+    margin: 0;
+    border-radius: 0;
+    font-size: 2vw;
+    height: 70px;
+}
+
+.nav-link-large {
+    font-size: 1.25rem;
+    font-weight: 500;
+    color: white;  /* collegate tra loro per cambio colore font */
+}
+
+.nav-link-large:hover {
+    color: #8B4757 !important;
+}
+
+.navbar-sections {
+    display: flex;
+    width: 100%;
+}
+
+.navbar-section {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 15px;
+}

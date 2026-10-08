@@ -1,0 +1,378 @@
+{% extends "base.html" %}
+
+{% block title %}TABATA TIMER - LIFE{% endblock %}
+
+{% block content %}
+<div class="background-image" aria-hidden="true"></div>
+
+<div class="page-content-timer">
+    <h1>TABATA</h1>
+
+    <div id="phase">READY</div>
+    <div id="timer">0</div>
+
+    <div class="settings d-flex justify-content-center gap-3 flex-wrap">
+
+        <label class="form-label">
+            Countdown:
+            <input class="form-control" type="number" id="countdownTime" min="0" value="10">
+        </label>
+
+        <label class="form-label">
+            Work:
+            <input class="form-control" type="number" id="workTime" min="1" value="20">
+        </label>
+
+        <label class="form-label">
+            Rest:
+            <input class="form-control" type="number" id="restTime" min="1" value="10">
+        </label>
+
+        <label class="form-label">
+            Rounds:
+            <input class="form-control" type="number" id="rounds" min="1" value="8">
+        </label>
+
+    </div>
+
+    <div class="buttons">
+        <button class="btn btn-success" onclick="startTimer()">START</button>
+        <button class="btn btn-warning" onclick="pauseTimer()">PAUSE</button>
+        <button class="btn btn-danger" onclick="resetTimer()">RESET</button>
+    </div>
+
+    <button id="fullscreenBtn" class="btn btn-primary" onclick="toggleFullscreen()">
+        FULLSCREEN
+    </button>
+</div>
+
+<script>
+
+    let countdownTime;
+    let workTime;
+    let restTime;
+    let rounds;
+
+    let interval = null;
+
+    let currentRound = 1;
+    let currentPhase = "ready";
+    let timeLeft = 0;
+
+    let started = false;
+
+    /* ========================= */
+    /* LOCAL STORAGE */
+    /* ========================= */
+
+    function saveSettings() {
+
+        // localStorage.setItem("countdownTime",
+        //     document.getElementById("countdownTime").value);
+
+        // localStorage.setItem("workTime",
+        //     document.getElementById("workTime").value);
+
+        // localStorage.setItem("restTime",
+        //     document.getElementById("restTime").value);
+
+        // localStorage.setItem("rounds",
+        //     document.getElementById("rounds").value);
+
+        localStorage.setItem("timerState", JSON.stringify({
+            currentPhase: currentPhase,
+            currentRound: currentRound,
+            timeLeft: timeLeft,
+            started: started,
+            countdownTime: countdownTime,
+            workTime: workTime,
+            restTime: restTime,
+            rounds: rounds
+        }));
+    }
+
+    function loadSettings() {
+
+        // document.getElementById("countdownTime").value =
+        //     localStorage.getItem("countdownTime") || 10;
+
+        // document.getElementById("workTime").value =
+        //     localStorage.getItem("workTime") || 20;
+
+        // document.getElementById("restTime").value =
+        //     localStorage.getItem("restTime") || 10;
+
+        // document.getElementById("rounds").value =
+        //     localStorage.getItem("rounds") || 8;
+
+        const saved = localStorage.getItem("timerState");
+        if (saved) {
+            const state = JSON.parse(saved);
+            currentPhase = state.currentPhase;
+            currentRound = state.currentRound;
+            timeLeft = state.timeLeft;
+            started = state.started;
+            countdownTime = state.countdownTime;
+            workTime = state.workTime;
+            restTime = state.restTime;
+            rounds = state.rounds;
+        }
+    }
+
+    loadSettings();
+    updateDisplay();
+
+    /* ========================= */
+    /* AUDIO */
+    /* ========================= */
+
+    function beep(freq = 1000, duration = 150) {
+
+        const ctx =
+            new (window.AudioContext || window.webkitAudioContext)();
+
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.frequency.value = freq;
+        osc.type = "sine";
+
+        osc.start();
+
+        setTimeout(() => {
+            osc.stop();
+            ctx.close();
+        }, duration);
+    }
+
+    function countdownBeep() {
+        beep(1300, 100);
+    }
+
+    function phaseBeep() {
+        beep(700, 300);
+    }
+
+    function endBeep() {
+        beep(400, 1000);
+    }
+
+    /* ========================= */
+    /* DISPLAY */
+    /* ========================= */
+
+    function updateDisplay() {
+
+        document.getElementById("timer").innerText = timeLeft;
+
+        let phaseText = "";
+
+        switch (currentPhase) {
+
+            case "ready":
+                phaseText = "READY";
+                document.body.style.backgroundColor = "#f8bfc7"; // rosa
+                document.body.style.color = "#8B4757"; // collegate tra loro per cambio colore font
+                break;
+
+            case "countdown":
+                phaseText = "GET READY";
+                document.body.style.backgroundColor = "#808080"; // grigio
+                document.body.style.color = "white"; // collegate tra loro per cambio colore font
+                break;
+
+            case "work":
+                phaseText =
+                    `WORK - Round ${currentRound}/${rounds}`;
+                document.body.style.backgroundColor = "#00aa00"; // verde
+                document.body.style.color = "white"; // collegate tra loro per cambio colore font
+                break;
+
+            case "rest":
+                phaseText =
+                    `REST - Round ${currentRound}/${rounds}`;
+                document.body.style.backgroundColor = "#cc0000"; // rosso
+                document.body.style.color = "white"; // collegate tra loro per cambio colore font
+
+                break;
+
+            case "finished":
+                phaseText = "WORKOUT COMPLETED";
+                document.body.style.backgroundColor = "#D4AF37"; // oro
+                document.body.style.color = "white"; // collegate tra loro per cambio colore font
+                break;
+        }
+
+        document.getElementById("phase").innerText = phaseText;
+    }
+
+    /* ========================= */
+    /* START */
+    /* ========================= */
+
+    function startTimer() {
+
+        if (interval) return;
+
+        if (currentPhase === "finished") {
+            resetTimer();
+        }
+
+        if (!started) {
+
+            countdownTime =
+                parseInt(document.getElementById("countdownTime").value);
+
+            workTime =
+                parseInt(document.getElementById("workTime").value);
+
+            restTime =
+                parseInt(document.getElementById("restTime").value);
+
+            rounds =
+                parseInt(document.getElementById("rounds").value);
+
+            saveSettings();
+
+            currentRound = 1;
+
+            currentPhase = "countdown";
+
+            timeLeft = countdownTime;
+
+            started = true;
+
+            updateDisplay();
+        }
+
+        interval = setInterval(tick, 1000);
+    }
+
+    /* ========================= */
+    /* TICK */
+    /* ========================= */
+
+    function tick() {
+
+        if ([5, 4, 3, 2, 1].includes(timeLeft)) {
+            countdownBeep();
+        }
+
+        timeLeft--;
+
+        if (timeLeft < 0) {
+
+            phaseBeep();
+
+            if (currentPhase === "countdown") {
+
+                currentPhase = "work";
+                timeLeft = workTime;
+            }
+
+            else if (currentPhase === "work") {
+
+                currentPhase = "rest";
+                timeLeft = restTime;
+            }
+
+            else if (currentPhase === "rest") {
+
+                currentRound++;
+
+                if (currentRound > rounds) {
+
+                    clearInterval(interval);
+                    interval = null;
+
+                    currentPhase = "finished";
+
+                    document.body.style.backgroundColor = "#f8bfc7";
+
+                    document.getElementById("timer").innerText = "✓";
+                    document.getElementById("phase").innerText =
+                        "WORKOUT COMPLETED";
+
+                    endBeep();
+
+                    return;
+                }
+
+                currentPhase = "work";
+                timeLeft = workTime;
+            }
+        }
+
+        saveSettings();
+
+        updateDisplay();
+    }
+
+    /* ========================= */
+    /* PAUSE */
+    /* ========================= */
+
+    function pauseTimer() {
+
+        clearInterval(interval);
+        interval = null;
+
+        saveSettings();
+    }
+
+    /* ========================= */
+    /* RESET */
+    /* ========================= */
+
+    function resetTimer() {
+
+        clearInterval(interval);
+
+        interval = null;
+
+        started = false;
+        currentPhase = "ready";
+        currentRound = 1;
+        timeLeft = 0;
+
+        document.getElementById("phase").innerText = "READY";
+        document.getElementById("timer").innerText = "0";
+        document.body.style.backgroundColor = "#f8bfc7"; // rosa
+        document.body.style.color = "#8B4757"; // collegate tra loro per cambio colore font
+
+        saveSettings();
+    }
+
+    /* ========================= */
+    /* TOGGLE FULLSCREEN */
+    /* ========================= */
+
+    function toggleFullscreen() {
+
+        if (!document.fullscreenElement) {
+
+            document.documentElement.requestFullscreen();
+
+            document.body.classList.add("workout-mode");
+
+        } else {
+
+            document.exitFullscreen();
+
+            document.body.classList.remove("workout-mode");
+        }
+    }
+
+    document.addEventListener("fullscreenchange", () => {
+
+        if (!document.fullscreenElement) {
+            document.body.classList.remove("workout-mode");
+        }
+    });
+
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+{% endblock %}

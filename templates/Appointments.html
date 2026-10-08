@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}APPUNTAMENTI PERSONAL, TRATTAMENTI, VISITE - LIFE{% endblock %}
+
+{% block content %}
+<div class="background-image" aria-hidden="true"></div>
+
+<div class="page-content-appointments">
+    <h1>
+        <div>APPUNTAMENTI</div>
+    </h1>
+
+    <!-- <div class="d-flex justify-content-center gap-3 flex-wrap"> -->
+    <div class="d-flex flex-column align-items-center gap-3">
+        <div class="form-container">
+            <form id="update-form" method="POST" class="d-flex flex-column gap-3">
+                <button id="update-button" class="btn btn-primary" type="submit">
+                    <span id="update-spinner" class="spinner-border spinner-border-sm d-none me-2" aria-hidden="true"></span>
+                    Update
+                </button>
+            </form>
+        </div>
+        <table class="appointments-table">
+            <thead>
+                <tr>
+                    <th>Tipo</th>
+                    <th>Titolo</th>
+                    <th>Nome</th>
+                    <th>Inizio</th>
+                    <!-- <th>Fine</th> -->
+                    <th>Azione</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for result in results %}
+                    {% if result and result.found %}
+                        <tr>
+                            <td>{{ result.calendar }}</td>
+                            <td>{{ result.title }}</td>
+                            <td>{{ result.nome }} {{ result.cognome }}</td>
+                            <td>{{ result.start[0] }} {{ result.start[1] }} ore {{ result.start[2] }}</td>
+                            <!-- <td>{{ result.end }}</td> -->
+                            <td>
+                                <a
+                                    class="btn btn-primary"
+                                    href="{{ result.link }}"
+                                    target="_blank"
+                                    rel="noopener noreferrer">
+                                    Apri WhatsApp
+                                </a>
+                            </td>
+                        </tr>
+                    {% elif result %}
+                        <tr class="table-warning">
+                            <td>{{ result.calendar }}</td>
+                            <td>{{ result.title }}</td>
+                            <td>{{ result.nome }} {{ result.cognome }}</td>
+                            <td>{{ result.start[0] }} {{ result.start[1] }} ore {{ result.start[2] }}</td>
+                            <!-- <td>{{ result.end }}</td> -->
+                            <td>
+                                <span class="badge bg-danger">Non trovato</span>
+                            </td>
+                        </tr>
+                    {% endif %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<script>
+    document.getElementById("update-form").addEventListener("submit", () => {
+        document.getElementById("update-spinner").classList.remove("d-none");
+        document.getElementById("update-button").disabled = true;
+    });
+</script>
+
+{% endblock %}

@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}CALCOLO DATA SCADENZA ABBONAMENTO - LIFE{% endblock %}
+
+{% block content %}
+<div class="background-image" aria-hidden="true"></div>
+
+<div class="page-content-countdate">
+    <h1>
+        <div>CALCOLO DATA</div>
+        <div>SCADENZA ABBONAMENTO</div>
+    </h1>
+
+    <div class="d-flex flex-column justify-content-center gap-2 flex-wrap" style="flex: 1">
+        <div class="form-container">
+            <form method="POST" class="d-flex flex-column gap-3">
+                <label>
+                    Data iniziale:
+                    <input
+                        class="form-control"
+                        type="date"
+                        name="start_date"
+                        value="{{ request.form.get('start_date', '') }}"
+                        required
+                    >
+                </label>
+
+                <label>
+                    Giorni da aggiungere:
+                    <input
+                        class="form-control"
+                        type="number"
+                        name="days"
+                        min="1"
+                        value="{{ request.form.get('days', 1) }}"
+                        required
+                    >
+                </label>
+
+                <button class="btn btn-primary" type="submit">
+                    Calcola
+                </button>
+            </form>
+        </div>
+
+        <div class="result-countdate">
+        {% if result %}
+            <label class="form-label">
+                Data scadenza: <strong>{{ result.strftime("%d-%m-%Y") }}</strong>
+            </label>
+        {% elif error %}
+            <label class="form-label">{{ error }}</label>
+        {% else %}
+            <label class="form-label">
+                Data scadenza: <strong>dd-mm-aaaa</strong>
+            </label>
+        {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
